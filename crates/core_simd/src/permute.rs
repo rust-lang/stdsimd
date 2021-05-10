@@ -122,6 +122,58 @@ macro_rules! impl_shuffle_lane {
                 }
                 (self.shuffle::<{ even() }>(other), self.shuffle::<{ odd() }>(other))
             }
+
+            /// Shift a vector `N` times to the left and fill the rest with zeroes.
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// # use core_simd::SimdU32;
+            /// let a = SimdU32::from_array([0, 1, 2, 3]);
+            /// let b = SimdU32::from_array([2, 3, 0, 0]);
+            /// assert_eq!(a.shift_left::<{2}>(), b);
+            /// ```
+            #[inline]
+            pub fn shift_left<const N: u32>(self) -> Self {
+                const fn idx() -> [u32; $n] {
+                    let mut base = [$n; $n];
+                    let mut i = N;
+                    while i < $n {
+                        base[i - 2] += N;
+                        i += 1;
+                    }
+                    base
+                }
+                let zeroed = Self::default();
+
+                self.shuffle::<{ idx() }>(zeroed)
+            }
+
+            /// Shift a vector `N` times to the right and fill the rest with zeroes.
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// # use core_simd::SimdU32;
+            /// let a = SimdU32::from_array([0, 1, 2, 3]);
+            /// let b = SimdU32::from_array([0, 0, 0, 1]);
+            /// assert_eq!(a.shift_right::<{2}>(), b);
+            /// ```
+            #[inline]
+            pub fn shift_right<const N: u32>(self) -> Self {
+                const fn idx() -> [u32; $n] {
+                    let mut base = [$n; $n];
+                    let mut i = N;
+                    while i < $n {
+                        base[i] += N;
+                        i += 1;
+                    }
+                    base
+                }
+                let zeroed = Self::default();
+
+                self.shuffle::<{ idx() }>(zeroed)
+            }
         }
     }
 }
