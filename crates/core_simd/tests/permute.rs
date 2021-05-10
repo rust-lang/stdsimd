@@ -33,3 +33,27 @@ fn interleave() {
     assert_eq!(even, a);
     assert_eq!(odd, b);
 }
+
+#[test]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+fn rotate_left() {
+    let a = SimdU32::from_array([0, 1, 2, 3, 4]);
+    let b = SimdU32::from_array([2, 3, 4, 0, 1]);
+    assert_eq!(a.rotate_left::<{ 2 }>(), b);
+    assert_eq!(a.rotate_left::<{ 0 }>(), a);
+    assert_eq!(a.rotate_left::<{ 5 }>(), a);
+    let a = SimdU32::from_array([1]);
+    assert_eq!(a.rotate_left::<{ 1274 }>(), a);
+}
+
+#[test]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+fn rotate_right() {
+    let a = SimdU32::from_array([0, 1, 2, 3, 4]);
+    let b = SimdU32::from_array([3, 4, 0, 1, 2]);
+    assert_eq!(a.rotate_left::<{ 2 }>(), b);
+    assert_eq!(a.rotate_left::<{ 0 }>(), a);
+    assert_eq!(a.rotate_left::<{ 5 }>(), a);
+    let a = SimdU32::from_array([1]);
+    assert_eq!(a.rotate_left::<{ 1274 }>(), a);
+}

@@ -29,6 +29,78 @@ macro_rules! impl_shuffle_lane {
                 self.shuffle::<{ idx() }>(self)
             }
 
+            /// Rotate a vector to the left `N` times.
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// # use core_simd::SimdU32;
+            /// let a = SimdU32::from_array([0, 1, 2, 3, 4]);
+            /// let b = SimdU32::from_array([2, 3, 4, 0, 1]);
+            /// assert_eq!(a.rotate_left::<{2}>(), b);
+            /// ```
+            #[inline]
+            pub fn rotate_left<const N: u32>(self) -> Self {
+                const fn idx() -> [u32; $n] {
+                    let mut base = [0u32; $n];
+                    let mut i = 0;
+                    while i < $n {
+                        base[i] = i as u32;
+                        i += 1;
+                    }
+                    let mut i = 0;
+                    while i < N {
+                        let temp = base[0];
+                        let mut j = 0;
+                        while j < $n - 1 {
+                            base[j] = base[j + 1];
+                            j += 1;
+                        }
+                        base[$n - 1] = temp;
+                        i += 1;
+                    }
+                    base
+                }
+
+                self.shuffle::<{ idx() }>(self)
+            }
+
+            /// Rotate a vector to the right `N` times.
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// # use core_simd::SimdU32;
+            /// let a = SimdU32::from_array([0, 1, 2, 3, 4]);
+            /// let b = SimdU32::from_array([3, 4, 0, 1, 2]);
+            /// assert_eq!(a.rotate_left::<{2}>(), b);
+            /// ```
+            #[inline]
+            pub fn rotate_right<const N: u32>(self) -> Self {
+                const fn idx() -> [u32; $n] {
+                    let mut base = [0u32; $n];
+                    let mut i = 0;
+                    while i < $n {
+                        base[i] = i as u32;
+                        i += 1;
+                    }
+                    let mut i = 0;
+                    while i < N {
+                        let last = base[$n - 1];
+                        let mut j = ($n - 2) as i32;
+                        while j >= 0 {
+                            base[(j + 1) as usize] = base[j as usize];
+                            j -= 1;
+                        }
+                        base[0] = last;
+                        i += 1;
+                    }
+                    base
+                }
+
+                self.shuffle::<{ idx() }>(self)
+            }
+
             /// Interleave two vectors.
             ///
             /// Produces two vectors with lanes taken alternately from `self` and `other`.
