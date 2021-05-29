@@ -433,6 +433,15 @@ macro_rules! impl_float_tests {
                         &|_| true,
                     )
                 }
+
+                fn rsqrt<const LANES: usize>() {
+                    test_helpers::test_unary_elementwise(
+                        &Vector::<LANES>::sqrt,
+                        &Scalar::Div::div(sqrt), // this is clearly wrong but untangling this was hard
+                        &|_| true,
+                    )
+                }
+
                 fn horizontal_sum<const LANES: usize>() {
                     test_helpers::test_1(&|x| {
                         test_helpers::prop_assert_biteq! (

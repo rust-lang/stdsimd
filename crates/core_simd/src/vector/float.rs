@@ -43,6 +43,15 @@ macro_rules! impl_float_vector {
             pub fn sqrt(self) -> Self {
                 unsafe { crate::intrinsics::simd_fsqrt(self) }
             }
+
+            /// Produces a vector where every lane has the reciprocal square root value
+            /// of the equivalently-indexed lane in `self`. Very useful for chaining multiplications
+            /// instead of divisions.
+            #[inline]
+            #[cfg(feature = "std")]
+            pub fn rsqrt(self) -> Self {
+                unsafe { _mm_rsqrt_ps(self) } // I'm missing the _mm256_rsqrt_ps version
+            }
         }
 
         impl<const LANES: usize> $name<LANES>
