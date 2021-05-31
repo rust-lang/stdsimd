@@ -1,8 +1,0 @@
-{
-    "rust-analyzer.checkOnSave.extraArgs": [
-        "+nightly"
-    ],
-    "rust-analyzer.runnables.cargoExtraArgs": [
-        "+nightly"
-    ]
-}
