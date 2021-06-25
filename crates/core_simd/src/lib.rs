@@ -28,14 +28,8 @@ mod round;
 
 mod math;
 
-mod lanes_at_most_32;
-pub use lanes_at_most_32::LanesAtMost32;
-
 mod masks;
 pub use masks::*;
 
 mod vector;
 pub use vector::*;
-
-mod array;
-pub use array::SimdArray;
