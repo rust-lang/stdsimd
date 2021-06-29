@@ -2,7 +2,7 @@ macro_rules! impl_integer_reductions {
     { $name:ident, $scalar:ty } => {
         impl<const LANES: usize> crate::$name<LANES>
         where
-            Self: crate::LanesAtMost32
+            Self: crate::Vector
         {
             /// Horizontal wrapping add.  Returns the sum of the lanes of the vector, with wrapping addition.
             #[inline]
@@ -56,7 +56,7 @@ macro_rules! impl_float_reductions {
     { $name:ident, $scalar:ty } => {
         impl<const LANES: usize> crate::$name<LANES>
         where
-            Self: crate::LanesAtMost32
+            Self: crate::Vector
         {
 
             /// Horizontal add.  Returns the sum of the lanes of the vector.
@@ -64,7 +64,7 @@ macro_rules! impl_float_reductions {
             pub fn horizontal_sum(self) -> $scalar {
                 // LLVM sum is inaccurate on i586
                 if cfg!(all(target_arch = "x86", not(target_feature = "sse2"))) {
-                    self.as_slice().iter().sum()
+                    self.as_array().iter().sum()
                 } else {
                     unsafe { crate::intrinsics::simd_reduce_add_ordered(self, 0.) }
                 }
@@ -75,7 +75,7 @@ macro_rules! impl_float_reductions {
             pub fn horizontal_product(self) -> $scalar {
                 // LLVM product is inaccurate on i586
                 if cfg!(all(target_arch = "x86", not(target_feature = "sse2"))) {
-                    self.as_slice().iter().product()
+                    self.as_array().iter().product()
                 } else {
                     unsafe { crate::intrinsics::simd_reduce_mul_ordered(self, 1.) }
                 }
@@ -106,7 +106,7 @@ macro_rules! impl_full_mask_reductions {
     { $name:ident, $bits_ty:ident } => {
         impl<T: crate::Mask, const LANES: usize> $name<T, LANES>
         where
-            crate::$bits_ty<LANES>: crate::LanesAtMost32
+            crate::$bits_ty<LANES>: crate::Vector
         {
             #[inline]
             pub fn any(self) -> bool {
@@ -125,7 +125,7 @@ macro_rules! impl_opaque_mask_reductions {
     { $name:ident, $bits_ty:ident } => {
         impl<const LANES: usize> $name<LANES>
         where
-            crate::$bits_ty<LANES>: crate::LanesAtMost32,
+            crate::$bits_ty<LANES>: crate::Vector,
             $name<LANES>: crate::Mask,
         {
             /// Returns true if any lane is set, or false otherwise.

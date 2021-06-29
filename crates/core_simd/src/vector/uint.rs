@@ -6,23 +6,23 @@ macro_rules! impl_unsigned_vector {
         impl_vector! { $name, $type }
         impl_integer_reductions! { $name, $type }
 
-        impl<const LANES: usize> Eq for $name<LANES> where Self: crate::LanesAtMost32 {}
+        impl<const LANES: usize> Eq for $name<LANES> where Self: crate::Vector {}
 
-        impl<const LANES: usize> Ord for $name<LANES> where Self: crate::LanesAtMost32 {
+        impl<const LANES: usize> Ord for $name<LANES> where Self: crate::Vector {
             #[inline]
             fn cmp(&self, other: &Self) -> core::cmp::Ordering {
                 // TODO use SIMD cmp
-                self.to_array().cmp(other.as_ref())
+                self.as_array().cmp(other.as_ref())
             }
         }
 
-        impl<const LANES: usize> core::hash::Hash for $name<LANES> where Self: crate::LanesAtMost32 {
+        impl<const LANES: usize> core::hash::Hash for $name<LANES> where Self: crate::Vector {
             #[inline]
             fn hash<H>(&self, state: &mut H)
             where
                 H: core::hash::Hasher
             {
-                self.as_slice().hash(state)
+                self.as_array().hash(state)
             }
         }
     }
@@ -32,7 +32,7 @@ macro_rules! impl_unsigned_vector {
 #[repr(simd)]
 pub struct SimdUsize<const LANES: usize>([usize; LANES])
 where
-    Self: crate::LanesAtMost32;
+    Self: crate::Vector;
 
 impl_unsigned_vector! { SimdUsize, usize }
 
@@ -52,7 +52,7 @@ from_transmute_x86! { unsafe usizex4 => __m256i }
 #[repr(simd)]
 pub struct SimdU16<const LANES: usize>([u16; LANES])
 where
-    Self: crate::LanesAtMost32;
+    Self: crate::Vector;
 
 impl_unsigned_vector! { SimdU16, u16 }
 
@@ -64,7 +64,7 @@ from_transmute_x86! { unsafe u16x16 => __m256i }
 #[repr(simd)]
 pub struct SimdU32<const LANES: usize>([u32; LANES])
 where
-    Self: crate::LanesAtMost32;
+    Self: crate::Vector;
 
 impl_unsigned_vector! { SimdU32, u32 }
 
@@ -76,7 +76,7 @@ from_transmute_x86! { unsafe u32x8 => __m256i }
 #[repr(simd)]
 pub struct SimdU64<const LANES: usize>([u64; LANES])
 where
-    Self: crate::LanesAtMost32;
+    Self: crate::Vector;
 
 impl_unsigned_vector! { SimdU64, u64 }
 
@@ -88,7 +88,7 @@ from_transmute_x86! { unsafe u64x4 => __m256i }
 #[repr(simd)]
 pub struct SimdU8<const LANES: usize>([u8; LANES])
 where
-    Self: crate::LanesAtMost32;
+    Self: crate::Vector;
 
 impl_unsigned_vector! { SimdU8, u8 }
 

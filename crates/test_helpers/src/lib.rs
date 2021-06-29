@@ -304,19 +304,23 @@ pub fn test_ternary_elementwise<
     Vector3: Into<[Scalar3; LANES]> + From<[Scalar3; LANES]> + Copy,
     VectorResult: Into<[ScalarResult; LANES]> + From<[ScalarResult; LANES]> + Copy,
 {
-    test_3(&|x: [Scalar1; LANES], y: [Scalar2; LANES], z: [Scalar3; LANES]| {
-        proptest::prop_assume!(check(x, y, z));
-        let result_1: [ScalarResult; LANES] = fv(x.into(), y.into(), z.into()).into();
-        let result_2: [ScalarResult; LANES] = {
-            let mut result = [ScalarResult::default(); LANES];
-            for ((i1, (i2, i3)), o) in x.iter().zip(y.iter().zip(z.iter())).zip(result.iter_mut()) {
-                *o = fs(*i1, *i2, *i3);
-            }
-            result
-        };
-        crate::prop_assert_biteq!(result_1, result_2);
-        Ok(())
-    });
+    test_3(
+        &|x: [Scalar1; LANES], y: [Scalar2; LANES], z: [Scalar3; LANES]| {
+            proptest::prop_assume!(check(x, y, z));
+            let result_1: [ScalarResult; LANES] = fv(x.into(), y.into(), z.into()).into();
+            let result_2: [ScalarResult; LANES] = {
+                let mut result = [ScalarResult::default(); LANES];
+                for ((i1, (i2, i3)), o) in
+                    x.iter().zip(y.iter().zip(z.iter())).zip(result.iter_mut())
+                {
+                    *o = fs(*i1, *i2, *i3);
+                }
+                result
+            };
+            crate::prop_assert_biteq!(result_1, result_2);
+            Ok(())
+        },
+    );
 }
 
 /// Expand a const-generic test into separate tests for each possible lane count.
@@ -331,18 +335,18 @@ macro_rules! test_lanes {
 
                 fn implementation<const $lanes: usize>()
                 where
-                    core_simd::SimdU8<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdU16<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdU32<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdU64<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdUsize<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI8<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI16<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI32<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI64<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdIsize<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdF32<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdF64<$lanes>: core_simd::LanesAtMost32,
+                    core_simd::SimdU8<$lanes>: core_simd::Vector,
+                    core_simd::SimdU16<$lanes>: core_simd::Vector,
+                    core_simd::SimdU32<$lanes>: core_simd::Vector,
+                    core_simd::SimdU64<$lanes>: core_simd::Vector,
+                    core_simd::SimdUsize<$lanes>: core_simd::Vector,
+                    core_simd::SimdI8<$lanes>: core_simd::Vector,
+                    core_simd::SimdI16<$lanes>: core_simd::Vector,
+                    core_simd::SimdI32<$lanes>: core_simd::Vector,
+                    core_simd::SimdI64<$lanes>: core_simd::Vector,
+                    core_simd::SimdIsize<$lanes>: core_simd::Vector,
+                    core_simd::SimdF32<$lanes>: core_simd::Vector,
+                    core_simd::SimdF64<$lanes>: core_simd::Vector,
                     core_simd::Mask8<$lanes>: core_simd::Mask,
                     core_simd::Mask16<$lanes>: core_simd::Mask,
                     core_simd::Mask32<$lanes>: core_simd::Mask,
@@ -405,18 +409,18 @@ macro_rules! test_lanes_panic {
 
                 fn implementation<const $lanes: usize>()
                 where
-                    core_simd::SimdU8<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdU16<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdU32<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdU64<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdUsize<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI8<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI16<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI32<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdI64<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdIsize<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdF32<$lanes>: core_simd::LanesAtMost32,
-                    core_simd::SimdF64<$lanes>: core_simd::LanesAtMost32,
+                    core_simd::SimdU8<$lanes>: core_simd::Vector,
+                    core_simd::SimdU16<$lanes>: core_simd::Vector,
+                    core_simd::SimdU32<$lanes>: core_simd::Vector,
+                    core_simd::SimdU64<$lanes>: core_simd::Vector,
+                    core_simd::SimdUsize<$lanes>: core_simd::Vector,
+                    core_simd::SimdI8<$lanes>: core_simd::Vector,
+                    core_simd::SimdI16<$lanes>: core_simd::Vector,
+                    core_simd::SimdI32<$lanes>: core_simd::Vector,
+                    core_simd::SimdI64<$lanes>: core_simd::Vector,
+                    core_simd::SimdIsize<$lanes>: core_simd::Vector,
+                    core_simd::SimdF32<$lanes>: core_simd::Vector,
+                    core_simd::SimdF64<$lanes>: core_simd::Vector,
                     core_simd::Mask8<$lanes>: core_simd::Mask,
                     core_simd::Mask16<$lanes>: core_simd::Mask,
                     core_simd::Mask32<$lanes>: core_simd::Mask,
