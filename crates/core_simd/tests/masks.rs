@@ -67,13 +67,15 @@ macro_rules! test_mask_api {
             }
 
             #[test]
-            fn to_bitmask() {
+            fn roundtrip_bitmask_conversion() {
                 let values = [
                     true, false, false, true, false, false, true, false,
                     true, true, false, false, false, false, false, true,
                 ];
                 let mask = core_simd::$name::<16>::from_array(values);
-                assert_eq!(mask.to_bitmask(), [0b01001001, 0b10000011]);
+                let bitmask = mask.to_bitmask();
+                assert_eq!(bitmask, [0b01001001, 0b10000011]);
+                assert_eq!(core_simd::$name::<16>::from_bitmask(bitmask), mask);
             }
         }
     }
@@ -81,4 +83,13 @@ macro_rules! test_mask_api {
 
 mod mask_api {
     test_mask_api! { Mask8 }
+}
+
+#[test]
+fn convert() {
+    let values = [true, false, false, true, false, false, true, false];
+    assert_eq!(
+        core_simd::Mask8::from_array(values),
+        core_simd::Mask32::from_array(values).into()
+    );
 }

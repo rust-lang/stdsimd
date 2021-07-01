@@ -126,6 +126,30 @@ macro_rules! define_mask {
                     bitmask
                 }
             }
+
+            #[inline]
+            pub fn from_bitmask<U: crate::Mask>(mut bitmask: U::BitMask) -> Self {
+                unsafe {
+                    // There is a bug where LLVM appears to implement this operation with the wrong
+                    // bit order.
+                    // TODO fix this in a better way
+                    if cfg!(any(target_arch = "mips", target_arch = "mips64")) {
+                        for x in bitmask.as_mut() {
+                            *x = x.reverse_bits();
+                        }
+                    }
+
+                    // TODO remove the transmute when rustc is more flexible
+                    assert_eq!(core::mem::size_of::<U::IntBitMask>(), core::mem::size_of::<U::BitMask>());
+                    let bitmask: U::IntBitMask = core::mem::transmute_copy(&bitmask);
+
+                    Self::from_int_unchecked(crate::intrinsics::simd_select_bitmask(
+                        bitmask,
+                        Self::splat(true).to_int(),
+                        Self::splat(false).to_int(),
+                    ))
+                }
+            }
         }
 
         impl<T: Mask, const LANES: usize> core::convert::From<$name<T, LANES>> for crate::$type<LANES>
@@ -212,3 +236,30 @@ define_mask! {
     /// or unset.
     struct MaskSize<const LANES: usize>(crate::SimdIsize<LANES>);
 }
+
+macro_rules! impl_from {
+    { $from:ident ($from_inner:ident) => $($to:ident ($to_inner:ident)),* } => {
+        $(
+        impl<const LANES: usize, T, U> From<$from<T, LANES>> for $to<U, LANES>
+        where
+            crate::$from_inner<LANES>: crate::LanesAtMost32,
+            crate::$to_inner<LANES>: crate::LanesAtMost32,
+            T: crate::Mask,
+            U: crate::Mask,
+        {
+            fn from(value: $from<T, LANES>) -> Self {
+                let mut new = Self::splat(false);
+                for i in 0..LANES {
+                    unsafe { new.set_unchecked(i, value.test_unchecked(i)) }
+                }
+                new
+            }
+        }
+        )*
+    }
+}
+impl_from! { Mask8 (SimdI8) => Mask16 (SimdI16), Mask32 (SimdI32), Mask64 (SimdI64), MaskSize (SimdIsize) }
+impl_from! { Mask16 (SimdI16) => Mask32 (SimdI32), Mask64 (SimdI64), MaskSize (SimdIsize), Mask8 (SimdI8) }
+impl_from! { Mask32 (SimdI32) => Mask64 (SimdI64), MaskSize (SimdIsize), Mask8 (SimdI8), Mask16 (SimdI16) }
+impl_from! { Mask64 (SimdI64) => MaskSize (SimdIsize), Mask8 (SimdI8), Mask16 (SimdI16), Mask32 (SimdI32) }
+impl_from! { MaskSize (SimdIsize) => Mask8 (SimdI8), Mask16 (SimdI16), Mask32 (SimdI32), Mask64 (SimdI64) }

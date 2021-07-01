@@ -1,7 +1,6 @@
 #![no_std]
 #![allow(incomplete_features)]
 #![feature(repr_simd, platform_intrinsics, simd_ffi, const_generics)]
-#![feature(extended_key_value_attributes)]
 #![warn(missing_docs)]
 //! Portable SIMD module.
 
@@ -17,9 +16,13 @@ mod reduction;
 mod select;
 pub use select::Select;
 
+mod to_bytes;
+pub use to_bytes::ToBytes;
+
 mod comparisons;
 mod fmt;
 mod intrinsics;
+mod iter;
 mod ops;
 mod round;
 
@@ -35,3 +38,5 @@ mod vector;
 pub use vector::*;
 
 mod libmf32;
+mod array;
+pub use array::SimdArray;
