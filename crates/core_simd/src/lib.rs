@@ -37,6 +37,5 @@ pub use masks::*;
 mod vector;
 pub use vector::*;
 
-mod libmf32;
 mod array;
 pub use array::SimdArray;

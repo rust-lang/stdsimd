@@ -62,6 +62,20 @@ macro_rules! impl_float_vector {
                 Self::splat(1.0) / self
             }
 
+            /// Calculate the sine of the angle
+            #[inline]
+            pub fn sin(self) -> Self {
+                let x = Self::splat(1.0 / (3.14159265358 * 2.0)) * self;
+                let x = x - x.floor() - 0.5;
+                Self::splat(12.268859941019306)
+                    .mul_add(x * x, Self::splat(-41.216241051002875))
+                    .mul_add(x * x, Self::splat(76.58672703334098))
+                    .mul_add(x * x, Self::splat(-81.59746095374902))
+                    .mul_add(x * x, Self::splat(41.34151143437585))
+                    .mul_add(x * x, Self::splat(-6.283184525811273))
+                    * x
+            }
+
             /// Converts each lane from radians to degrees.
             #[inline]
             pub fn to_degrees(self) -> Self {
