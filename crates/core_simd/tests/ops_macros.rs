@@ -459,6 +459,14 @@ macro_rules! impl_float_tests {
                     )
                 }
 
+                fn sin<const LANES: usize>() {
+                    test_helpers::test_unary_elementwise(
+                        &Vector::<LANES>::sin,
+                        &Scalar::sin,
+                        &|_| true,
+                    )
+                }
+
                 fn to_degrees<const LANES: usize>() {
                     test_helpers::test_unary_elementwise(
                         &Vector::<LANES>::to_degrees,
