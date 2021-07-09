@@ -31,6 +31,13 @@ macro_rules! impl_float_vector {
 
             /// Produces a vector where every lane has the absolute value of the
             /// equivalently-indexed lane in `self`.
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([-3.0, -0.0, 2.0, 0.0]);
+            /// let b = f32x4::from_array([3.0, 0.0, 2.0, 0.0]);
+            /// let c = f32x4::abs(a);
+            /// assert_eq!(c, b);
+            /// ```
             #[inline]
             pub fn abs(self) -> Self {
                 unsafe { crate::intrinsics::simd_fabs(self) }
@@ -50,6 +57,13 @@ macro_rules! impl_float_vector {
 
             /// Produces a vector where every lane has the square root value
             /// of the equivalently-indexed lane in `self`
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([9.0, 16.0, 4.0, 0.0]);
+            /// let b = f32x4::from_array([3.0, 4.0, 2.0, 0.0]);
+            /// let c = f32x4::sqrt(a);
+            /// assert_eq!(c, b);
+            /// ```
             #[inline]
             #[cfg(feature = "std")]
             pub fn sqrt(self) -> Self {

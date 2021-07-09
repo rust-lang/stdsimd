@@ -3,26 +3,54 @@ macro_rules! impl_vector {
     { $name:ident, $type:ty } => {
         impl<const LANES: usize> $name<LANES> where Self: crate::LanesAtMost32 {
             /// Construct a SIMD vector by setting all lanes to the given value.
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([1.0, 1.0, 1.0, 1.0]);
+            /// let b = f32x4::splat(1.0);
+            /// assert_eq!(a, b);
+            /// ```
             pub const fn splat(value: $type) -> Self {
                 Self([value; LANES])
             }
 
             /// Returns a slice containing the entire SIMD vector.
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([1.0, 1.0, 1.0, 1.0]);
+            /// let b = a.as_slice();
+            /// ```
             pub const fn as_slice(&self) -> &[$type] {
                 &self.0
             }
 
             /// Returns a mutable slice containing the entire SIMD vector.
+            /// ```
+            /// # use core_simd::*;
+            /// let mut a = f32x4::from_array([1.0, 1.0, 1.0, 1.0]);
+            /// let b = a.as_mut_slice();
+            /// ```
             pub fn as_mut_slice(&mut self) -> &mut [$type] {
                 &mut self.0
             }
 
             /// Converts an array to a SIMD vector.
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([1.0, 1.0, 1.0, 1.0]);
+            /// let b = f32x4::splat(1.0);
+            /// assert_eq!(a, b);
+            /// ```
             pub const fn from_array(array: [$type; LANES]) -> Self {
                 Self(array)
             }
 
             /// Converts a SIMD vector to an array.
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([1.0, 1.0, 1.0, 1.0]);
+            /// let b = [1.0, 1.0, 1.0, 1.0];
+            /// assert_eq!(f32x4::to_array(a), b);
+            /// ```
             pub const fn to_array(self) -> [$type; LANES] {
                 // workaround for rust-lang/rust#80108
                 // TODO fix this
@@ -47,6 +75,13 @@ macro_rules! impl_vector {
         impl<const LANES: usize> Copy for $name<LANES> where Self: crate::LanesAtMost32 {}
 
         impl<const LANES: usize> Clone for $name<LANES> where Self: crate::LanesAtMost32 {
+            /// Clone a SIMD vector.
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::from_array([1.0, 1.0, 1.0, 1.0]);
+            /// assert_eq!(a, f32x4::clone(&a));
+            /// assert_eq!(a, a.clone());
+            /// ```
             #[inline]
             fn clone(&self) -> Self {
                 *self
@@ -61,6 +96,12 @@ macro_rules! impl_vector {
         }
 
         impl<const LANES: usize> PartialEq for $name<LANES> where Self: crate::LanesAtMost32 {
+            /// ```
+            /// # use core_simd::*;
+            /// let a = f32x4::splat(1.0);
+            /// let b = f32x4::splat(1.0);
+            /// assert!(a == b);
+            /// ```
             #[inline]
             fn eq(&self, other: &Self) -> bool {
                 // TODO use SIMD equality
